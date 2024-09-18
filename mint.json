@@ -67,6 +67,15 @@
     {
       "group": "API Documentation",
       "pages": ["api-reference/documentation"]
+    },
+	{
+      "group": "Endpoint Examples",
+      "pages": [
+        "api-reference/endpoint/upload_rfc",
+        "api-reference/endpoint/request",
+        "api-reference/endpoint/verify_request",
+        "api-reference/endpoint/get-invoice"
+      ]
     }
   ],
   "footerSocials": {
