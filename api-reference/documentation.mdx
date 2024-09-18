@@ -1,0 +1,60 @@
+# CFDI API - Documentación
+
+---
+
+**Versión**: 0.0.6  
+**Título**: CFDI API  
+**Descripción**: API para realizar operaciones con CFDI.  
+
+---
+
+## Namespaces
+
+### `cfdi`  
+**Descripción**: Operaciones relacionadas con CFDI.
+
+---
+
+## Endpoints
+
+### `POST /cfdi/upload`
+
+Subida de archivos relacionados con el contribuyente.
+
+- **Descripción**: Permite subir los datos del RFC, clave privada, certificado, contraseña y CIEC del contribuyente.
+  
+- **Modelo de entrada** (`UploadModel`):
+  ```json
+  {
+    "rfc": "string (Requerido) - RFC del contribuyente",
+    "private_key": "string (Opcional) - Clave privada en formato PEM",
+    "cert": "string (Opcional) - Certificado en formato PEM",
+    "password": "string (Opcional) - Contraseña del certificado",
+    "ciec": "string (Opcional) - CIEC del contribuyente"
+  }
+
+Debe entregarse un ciec o private_key,cert y password.
+
+## POST /cfdi/request
+
+- **Descripción**:  Permite verificar el estado de una solicitud.
+
+- **Modelo de entrada** (`UploadModel`):
+
+  ```json
+  {
+    "rfc": "string (Requerido) - RFC del contribuyente",
+    "startdate": "string (Requerido) - Fecha de inicio (YYYY-MM-DD)",
+    "enddate": "string (Requerido) - Fecha de fin (YYYY-MM-DD)"
+  }
+
+## GET /cfdi/invoice/{uuid}
+
+- **Descripción**:  Obtiene los detalles de una factura específica mediante su UUID.
+
+- **Modelo de entrada** (`UploadModel`):
+
+```json
+   {
+     "uuid": "string (Requerido) - UUID de la factura solicitada"
+   }

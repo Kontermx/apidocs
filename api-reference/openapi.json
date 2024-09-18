@@ -1,72 +1,25 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "title": "CFDI API",
+    "description": "API para realizar operaciones con CFDI",
+    "version": "0.0.6"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
+      "url": "thyphoon.pythonanywhere.com"
     }
   ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/cfdi/upload": {
       "post": {
-        "description": "Creates a new plant in the store",
+        "description": "Permite subir los datos del RFC, clave privada, certificado, contraseña y CIEC del contribuyente.",
         "requestBody": {
-          "description": "Plant to add to the store",
+          "description": "Datos del contribuyente para subir",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/UploadModel"
               }
             }
           },
@@ -74,17 +27,20 @@
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Subida exitosa"
+          },
+          "400": {
+            "description": "Error en la validación de los datos",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
           },
-          "400": {
-            "description": "unexpected error",
+          "500": {
+            "description": "Error interno del servidor",
             "content": {
               "application/json": {
                 "schema": {
@@ -96,28 +52,200 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+    "/cfdi/request": {
+      "post": {
+        "description": "Solicita CFDI en un rango de fechas.",
+        "requestBody": {
+          "description": "Datos para solicitar CFDI",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Solicitud exitosa"
+          },
+          "400": {
+            "description": "Error en la validación de los datos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cfdi/invoice/{uuid}": {
+      "get": {
+        "description": "Devuelve los detalles de la factura solicitada utilizando su UUID.",
         "parameters": [
           {
-            "name": "id",
+            "name": "uuid",
             "in": "path",
-            "description": "ID of plant to delete",
+            "description": "UUID de la factura solicitada",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
+          "200": {
+            "description": "Retorna los detalles de la factura"
+          },
+          "404": {
+            "description": "Factura no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cfdi/verify": {
+      "post": {
+        "description": "Verifica si un CFDI es válido.",
+        "requestBody": {
+          "description": "Datos para verificar el CFDI",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "CFDI válido"
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Error en la validación de los datos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cfdi/descargar": {
+      "post": {
+        "description": "Permite descargar un CFDI.",
+        "requestBody": {
+          "description": "Datos para descargar el CFDI",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescargarModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "CFDI descargado exitosamente"
+          },
+          "404": {
+            "description": "CFDI no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cfdi/ciec": {
+      "post": {
+        "description": "Envía una solicitud para obtener la CIEC del contribuyente.",
+        "requestBody": {
+          "description": "Datos para solicitar la CIEC",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CIECModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Solicitud exitosa"
+          },
+          "400": {
+            "description": "Error en la validación de los datos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
             "content": {
               "application/json": {
                 "schema": {
@@ -132,48 +260,95 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "UploadModel": {
         "type": "object",
+        "required": ["rfc"],
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+          "rfc": {
+            "type": "string",
+            "description": "RFC del contribuyente"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+          "private_key": {
+            "type": "string",
+            "description": "Clave privada en formato PEM"
+          },
+          "cert": {
+            "type": "string",
+            "description": "Certificado en formato PEM"
+          },
+          "password": {
+            "type": "string",
+            "description": "Contraseña del certificado"
+          },
+          "ciec": {
+            "type": "string",
+            "description": "CIEC del contribuyente"
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+      "RequestModel": {
+        "type": "object",
+        "required": ["rfc", "startdate", "enddate"],
+        "properties": {
+          "rfc": {
+            "type": "string",
+            "description": "RFC del contribuyente"
           },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
+          "startdate": {
+            "type": "string",
+            "description": "Fecha de inicio (YYYY-MM-DD)"
+          },
+          "enddate": {
+            "type": "string",
+            "description": "Fecha de fin (YYYY-MM-DD)"
           }
-        ]
+        }
+      },
+      "VerifyModel": {
+        "type": "object",
+        "required": ["rfc", "uuid"],
+        "properties": {
+          "rfc": {
+            "type": "string",
+            "description": "RFC del contribuyente"
+          },
+          "uuid": {
+            "type": "string",
+            "description": "UUID del CFDI a verificar"
+          }
+        }
+      },
+      "DescargarModel": {
+        "type": "object",
+        "required": ["rfc", "uuid"],
+        "properties": {
+          "rfc": {
+            "type": "string",
+            "description": "RFC del contribuyente"
+          },
+          "uuid": {
+            "type": "string",
+            "description": "UUID del CFDI a descargar"
+          }
+        }
+      },
+      "CIECModel": {
+        "type": "object",
+        "required": ["rfc", "password"],
+        "properties": {
+          "rfc": {
+            "type": "string",
+            "description": "RFC del contribuyente"
+          },
+          "password": {
+            "type": "string",
+            "description": "Contraseña del CIEC"
+          }
+        }
       },
       "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
         "type": "object",
+        "required": ["error", "message"],
         "properties": {
           "error": {
             "type": "integer",
@@ -183,12 +358,6 @@
             "type": "string"
           }
         }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
       }
     }
   }
