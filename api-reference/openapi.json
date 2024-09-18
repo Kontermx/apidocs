@@ -3,105 +3,83 @@
   "info": {
     "title": "CFDI API",
     "description": "API para realizar operaciones con CFDI",
-    "version": "0.0.6"
+    "version": "1.0.0"
   },
-  "servers": [
-    {
-      "url": "thyphoon.pythonanywhere.com"
-    }
-  ],
   "paths": {
-    "/cfdi/upload": {
+    "/upload_rfc": {
       "post": {
-        "description": "Permite subir los datos del RFC, clave privada, certificado, contraseña y CIEC del contribuyente.",
+        "summary": "Upload RFC, private key, and certificate",
+        "description": "Sube un RFC, clave privada y certificado. Los campos `claveprivada` y `certificado` deben ser archivos en formato binario.",
         "requestBody": {
-          "description": "Datos del contribuyente para subir",
+          "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "$ref": "#/components/schemas/UploadModel"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "Subida exitosa"
+            "description": "Data uploaded and inserted successfully"
           },
           "400": {
-            "description": "Error en la validación de los datos",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "Missing fields in JSON."
+          },
+          "401": {
+            "description": "The private key password is incorrect."
           },
           "500": {
-            "description": "Error interno del servidor",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "Error saving files or inserting into the database."
           }
         }
       }
     },
-    "/cfdi/request": {
+    "/request": {
       "post": {
-        "description": "Solicita CFDI en un rango de fechas.",
+        "summary": "Request CFDI",
+        "description": "Solicita CFDIs para un RFC en un rango de fechas.",
         "requestBody": {
-          "description": "Datos para solicitar CFDI",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RequestModel"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "Solicitud exitosa"
+            "description": "Request successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolicitudRealizadaModel"
+                }
+              }
+            }
           },
           "400": {
-            "description": "Error en la validación de los datos",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "Missing fields in JSON or invalid RFC/dates."
           },
           "500": {
-            "description": "Error interno del servidor",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "Error inserting into the database."
           }
         }
       }
     },
-    "/cfdi/invoice/{uuid}": {
+    "/verify_request/{uuid}": {
       "get": {
-        "description": "Devuelve los detalles de la factura solicitada utilizando su UUID.",
+        "summary": "Verify CFDI Request Status",
+        "description": "Verifica el estado de todas las solicitudes asociadas a un UUID y actualiza el estado si todas están completas.",
         "parameters": [
           {
             "name": "uuid",
             "in": "path",
-            "description": "UUID de la factura solicitada",
             "required": true,
+            "description": "UUID de la solicitud",
             "schema": {
               "type": "string"
             }
@@ -109,150 +87,44 @@
         ],
         "responses": {
           "200": {
-            "description": "Retorna los detalles de la factura"
+            "description": "Request status updated successfully"
           },
           "404": {
-            "description": "Factura no encontrada",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "Request not found"
           },
           "500": {
-            "description": "Error interno del servidor",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "Error verifying the requests."
           }
         }
       }
     },
-    "/cfdi/verify": {
-      "post": {
-        "description": "Verifica si un CFDI es válido.",
-        "requestBody": {
-          "description": "Datos para verificar el CFDI",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/VerifyModel"
-              }
+    "/get-invoice/{uuid}": {
+      "get": {
+        "summary": "Get Invoice",
+        "description": "Obtiene los detalles del comprobante basado en el UUID.",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "description": "UUID del comprobante",
+            "schema": {
+              "type": "string"
             }
-          },
-          "required": true
-        },
+          }
+        ],
         "responses": {
           "200": {
-            "description": "CFDI válido"
+            "description": "Voucher generated successfully."
           },
           "400": {
-            "description": "Error en la validación de los datos",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error interno del servidor",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/cfdi/descargar": {
-      "post": {
-        "description": "Permite descargar un CFDI.",
-        "requestBody": {
-          "description": "Datos para descargar el CFDI",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DescargarModel"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "CFDI descargado exitosamente"
+            "description": "Missing fields in JSON."
           },
           "404": {
-            "description": "CFDI no encontrado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "No vouchers available CFDI."
           },
           "500": {
-            "description": "Error interno del servidor",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/cfdi/ciec": {
-      "post": {
-        "description": "Envía una solicitud para obtener la CIEC del contribuyente.",
-        "requestBody": {
-          "description": "Datos para solicitar la CIEC",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CIECModel"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Solicitud exitosa"
-          },
-          "400": {
-            "description": "Error en la validación de los datos",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error interno del servidor",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "Error querying the database."
           }
         }
       }
@@ -296,66 +168,29 @@
           },
           "startdate": {
             "type": "string",
-            "description": "Fecha de inicio (YYYY-MM-DD)"
+            "description": "Fecha de inicio en formato YYYY-MM-DD"
           },
           "enddate": {
             "type": "string",
-            "description": "Fecha de fin (YYYY-MM-DD)"
+            "description": "Fecha de fin en formato YYYY-MM-DD"
           }
         }
       },
-      "VerifyModel": {
+      "SolicitudRealizadaModel": {
         "type": "object",
-        "required": ["rfc", "uuid"],
+        "required": ["uuid", "status"],
         "properties": {
-          "rfc": {
-            "type": "string",
-            "description": "RFC del contribuyente"
-          },
           "uuid": {
             "type": "string",
-            "description": "UUID del CFDI a verificar"
-          }
-        }
-      },
-      "DescargarModel": {
-        "type": "object",
-        "required": ["rfc", "uuid"],
-        "properties": {
-          "rfc": {
-            "type": "string",
-            "description": "RFC del contribuyente"
+            "description": "UUID de la solicitud realizada"
           },
-          "uuid": {
+          "status": {
             "type": "string",
-            "description": "UUID del CFDI a descargar"
-          }
-        }
-      },
-      "CIECModel": {
-        "type": "object",
-        "required": ["rfc", "password"],
-        "properties": {
-          "rfc": {
-            "type": "string",
-            "description": "RFC del contribuyente"
-          },
-          "password": {
-            "type": "string",
-            "description": "Contraseña del CIEC"
-          }
-        }
-      },
-      "Error": {
-        "type": "object",
-        "required": ["error", "message"],
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
+            "description": "Estado de la solicitud"
           },
           "message": {
-            "type": "string"
+            "type": "string",
+            "description": "Mensaje relacionado con el estado"
           }
         }
       }
