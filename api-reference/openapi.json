@@ -113,23 +113,52 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Voucher generated successfully."
-          },
-          "400": {
-            "description": "Missing fields in JSON."
-          },
-          "404": {
-            "description": "No vouchers available CFDI."
-          },
-          "500": {
-            "description": "Error querying the database."
-          }
-        }
-      }
-    }
-  },
+	"responses": {
+		  "200": {
+			"description": "Plant response",
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "array",
+				  "items": {
+					"$ref": "#/components/schemas/Plant"
+				  }
+				}
+			  }
+			}
+		  },
+		  "400": {
+			"description": "Unexpected error",
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "$ref": "#/components/schemas/Error"
+				}
+			  }
+			}
+		  },
+		  "404": {
+			"description": "No vouchers available CFDI",
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "$ref": "#/components/schemas/Error"
+				}
+			  }
+			}
+		  },
+		  "500": {
+			"description": "Error querying the database",
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "$ref": "#/components/schemas/Error"
+				}
+			  }
+			}
+		  }
+		}
+    },
   "components": {
     "schemas": {
       "UploadModel": {
