@@ -5,6 +5,11 @@
     "description": "API para realizar operaciones con CFDI",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "https://thyphoon.pythonanywhere.com/"
+    }
+  ],
   "paths": {
     "/upload_rfc": {
       "post": {
@@ -20,20 +25,85 @@
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Data uploaded and inserted successfully"
-          },
-          "400": {
-            "description": "Missing fields in JSON."
-          },
-          "401": {
-            "description": "The private key password is incorrect."
-          },
-          "500": {
-            "description": "Error saving files or inserting into the database."
-          }
-        }
+		"responses": {
+		  "200": {
+			"description": "Data uploaded and inserted successfully.",
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"message": {
+					  "type": "string",
+					  "example": "Data uploaded and inserted successfully."
+					}
+				  }
+				}
+			  }
+			}
+		  },
+		  "400": {
+			"description": "Missing fields in JSON.",
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"error": {
+					  "type": "string",
+					  "example": "Missing fields in JSON."
+					}
+				  }
+				}
+			  }
+			}
+		  },
+		  "401": {
+			"description": "The private key password is incorrect.",
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"error": {
+					  "type": "string",
+					  "example": "The private key password is incorrect."
+					}
+				  }
+				}
+			  }
+			}
+		  },
+		  "500": {
+			"description": "Error saving files or inserting into the database.",
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"success": {
+					  "type": "boolean",
+					  "example": "false"
+					},
+					"error": {
+					  "type": "object",
+					  "properties": {
+						"code": {
+						  "type": "string",
+						  "example": "Error saving files or inserting into the database"
+						},
+						"message": {
+						  "type": "string",
+						  "example": "Detailed error message from the server."
+						}
+					  }
+					}
+				  }
+				}
+			  }
+			}
+		  }
+		}
       }
     },
     "/request": {
@@ -61,12 +131,51 @@
               }
             }
           },
-          "400": {
-            "description": "Missing fields in JSON or invalid RFC/dates."
-          },
+		  "400": {
+				"description": "Missing fields in JSON.",
+				"content": {
+				  "application/json": {
+					"schema": {
+					  "type": "object",
+					  "properties": {
+						"error": {
+						  "type": "string",
+						  "example": "Missing fields in JSON or invalid RFC/dates."
+						}
+					  }
+					}
+				  }
+				}
+			  },
           "500": {
-            "description": "Error inserting into the database."
-          }
+			"description": "Error saving files or inserting into the database.",
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"success": {
+					  "type": "boolean",
+					  "example": "false"
+					},
+					"error": {
+					  "type": "object",
+					  "properties": {
+						"code": {
+						  "type": "string",
+						  "example": "Error saving files or inserting into the database"
+						},
+						"message": {
+						  "type": "string",
+						  "example": "Detailed error message from the server."
+						}
+					  }
+					}
+				  }
+				}
+			  }
+			}
+		  }
         }
       }
     },
@@ -86,15 +195,84 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Request status updated successfully"
-          },
-          "404": {
-            "description": "Request not found"
-          },
+		  "200": {
+			"description": "Request status updated successfully, 1 means accepted, 2 means in progress, 3 means completed, list of associated CFDI",
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"success": {
+					  "type": "boolean",
+					  "example": true
+					},
+					"message": {
+					  "type": "string",
+					  "example": "Request status updated successfully"
+					},
+					"status": {
+					  "type": "integer",
+					  "description": "1 = accepted, 2 = in progress, 3 = completed",
+					  "example": 3
+					},
+					"UUIDs": {
+					  "type": "array",
+					  "items": {
+						"type": "string",
+						"example": "123e4567-e89b-12d3-a456-426614174000"
+					  },
+					  "description": "List of associated CFDI UUIDs, if status is completed"
+					}
+				  }
+				}
+			  }
+			}
+		  },
+		  "404": {
+				"description": "Missing fields in JSON.",
+				"content": {
+				  "application/json": {
+					"schema": {
+					  "type": "object",
+					  "properties": {
+						"error": {
+						  "type": "string",
+						  "example": "Request not found"
+						}
+					  }
+					}
+				  }
+				}
+			  },
           "500": {
-            "description": "Error verifying the requests."
-          }
+			"description": "Error saving files or inserting into the database.",
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"success": {
+					  "type": "boolean",
+					  "example": "false"
+					},
+					"error": {
+					  "type": "object",
+					  "properties": {
+						"code": {
+						  "type": "string",
+						  "example": "Error saving files or inserting into the database"
+						},
+						"message": {
+						  "type": "string",
+						  "example": "Detailed error message from the server."
+						}
+					  }
+					}
+				  }
+				}
+			  }
+			}
+		  }
         }
       }
     },
@@ -113,52 +291,152 @@
             }
           }
         ],
-	"responses": {
+        "responses": {
 		  "200": {
-			"description": "Plant response",
+			"description": "Voucher generated successfully.",
 			"content": {
 			  "application/json": {
 				"schema": {
-				  "type": "array",
-				  "items": {
-					"$ref": "#/components/schemas/Plant"
+				  "type": "object",
+				  "properties": {
+					"count": {
+					  "type": "integer",
+					  "description": "Number of vouchers returned"
+					},
+					"next": {
+					  "type": "string",
+					  "description": "URL for the next set of vouchers, if pagination is applied"
+					},
+					"previous": {
+					  "type": "string",
+					  "description": "URL for the previous set of vouchers, if pagination is applied"
+					},
+					"results": {
+					  "type": "array",
+					  "items": {
+						"type": "object",
+						"properties": {
+						  "invoice_identification": {
+							"type": "string",
+							"description": "UUID of the invoice"
+						  },
+						  "invoice_date": {
+							"type": "string",
+							"description": "Date the invoice was issued"
+						  },
+						  "status": {
+							"type": "string",
+							"description": "Status of the invoice"
+						  },
+						  "sender_id": {
+							"type": "string",
+							"description": "RFC of the sender"
+						  },
+						  "receiver_id": {
+							"type": "string",
+							"description": "RFC of the receiver"
+						  },
+						  "invoice_details": {
+							"type": "array",
+							"items": {
+							  "type": "object",
+							  "properties": {
+								"description": {
+								  "type": "string",
+								  "description": "Product or service description"
+								},
+								"quantity": {
+								  "type": "number",
+								  "description": "Quantity of the product or service"
+								},
+								"total_amount": {
+								  "type": "number",
+								  "description": "Total amount for the item"
+								}
+							  }
+							}
+						  },
+						  "collected_at": {
+							"type": "string",
+							"description": "Date when the invoice was collected"
+						  },
+						  "created_at": {
+							"type": "string",
+							"description": "Date the invoice was certified"
+						  }
+						}
+					  }
+					}
 				  }
 				}
 			  }
 			}
 		  },
 		  "400": {
-			"description": "Unexpected error",
-			"content": {
-			  "application/json": {
-				"schema": {
-				  "$ref": "#/components/schemas/Error"
+				"description": "Missing fields in JSON.",
+				"content": {
+				  "application/json": {
+					"schema": {
+					  "type": "object",
+					  "properties": {
+						"error": {
+						  "type": "string",
+						  "example": "Missing fields in JSON."
+						}
+					  }
+					}
+				  }
 				}
-			  }
-			}
-		  },
+			  },
 		  "404": {
-			"description": "No vouchers available CFDI",
-			"content": {
-			  "application/json": {
-				"schema": {
-				  "$ref": "#/components/schemas/Error"
+				"description": "No vouchers available CFDI.",
+				"content": {
+				  "application/json": {
+					"schema": {
+					  "type": "object",
+					  "properties": {
+						"error": {
+						  "type": "string",
+						  "example": "No vouchers available CFDI."
+						}
+					  }
+					}
+				  }
 				}
-			  }
-			}
-		  },
-		  "500": {
-			"description": "Error querying the database",
+			  },
+          "500": {
+			"description": "Error saving files or inserting into the database.",
 			"content": {
 			  "application/json": {
 				"schema": {
-				  "$ref": "#/components/schemas/Error"
+				  "type": "object",
+				  "properties": {
+					"success": {
+					  "type": "boolean",
+					  "example": "false"
+					},
+					"error": {
+					  "type": "object",
+					  "properties": {
+						"code": {
+						  "type": "string",
+						  "example": "Error saving files or inserting into the database"
+						},
+						"message": {
+						  "type": "string",
+						  "example": "Detailed error message from the server."
+						}
+					  }
+					}
+				  }
 				}
 			  }
 			}
 		  }
-		}
-    },
+        }
+      }
+    }
+  },
   "components": {
     "schemas": {
       "UploadModel": {
